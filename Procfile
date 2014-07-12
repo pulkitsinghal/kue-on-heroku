@@ -1,2 +1,3 @@
 web: node app.js
-worker: node exponentialBackOff.worker.js
+consumerWorker: node consumer.js
+producerWorker: node exponentialBackOff.worker.js

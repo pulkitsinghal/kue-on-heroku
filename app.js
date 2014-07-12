@@ -2,19 +2,21 @@ var express = require('express')
   , kue = require('kue')
   , url = require('url')
   , redis = require('kue/node_modules/redis');
- 
-kue.redis.createClient = function() {
-    var redisUrl = url.parse(process.env.REDISCLOUD_URL)
-      , client = redis.createClient(redisUrl.port, redisUrl.hostname);
-    if (redisUrl.auth) {
-        client.auth(redisUrl.auth.split(":")[1]);
+
+var redisUrl = url.parse(process.env.REDISCLOUD_URL);
+
+var jobs = kue.createQueue({
+    prefix: 'q',
+    redis: {
+      port: redisUrl.port,
+      host: redisUrl.hostname,
+      auth: redisUrl.auth.split(":")[1],
+      options: {
+        // look for more redis options in [node_redis](https://github.com/mranney/node_redis)
+      }
     }
-    return client;
-};
- 
-// then access the current Queue
-var jobs = kue.createQueue()
-  , app = express.createServer();
+  })
+  , app = express();
 
 // create a dummy job
 app.get('/', function(req, res) {
@@ -48,5 +50,6 @@ app.get('/', function(req, res) {
 // wire up Kue (see /active for queue interface)
 app.use(kue.app);
 
-app.listen(process.env.PORT);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+var server = app.listen(process.env.PORT, function() {
+  console.log('Listening on port %d', server.address().port);
+});
