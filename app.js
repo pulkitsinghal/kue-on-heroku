@@ -14,7 +14,8 @@ var jobs = kue.createQueue({
       options: {
         // look for more redis options in [node_redis](https://github.com/mranney/node_redis)
       }
-    }
+    },
+    disableSearch: true
   })
   , app = express();
 
